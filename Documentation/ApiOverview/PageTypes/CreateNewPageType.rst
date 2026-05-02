@@ -13,20 +13,42 @@ the directions below to the end:
 
 ..  rst-class:: bignums
 
-1.  Add new page type to :php:`PageDoktypeRegistry`
+1. Add new page type
 
-    The new page type has to be added to the
-    :php:`\TYPO3\CMS\Core\DataHandling\PageDoktypeRegistry`. TYPO3 uses this
-    registry internally to only allow specific tables to be inserted on that
-    page type. This registry will not add or modify any TCA. In example below
-    all kind of tables (`*`) are allowed to be inserted on the new page type.
+   To register a new page type, the allowed record types for this specific 
+   ``doktype`` must be defined using the TCA option :php:`allowedRecordTypes`. 
+   This configuration centralizes the page type restrictions and replaces the 
+   legacy :php:`PageDoktypeRegistry`.
 
-    The new page type is added to the :php:`PageDoktypeRegistry` in
-    :file:`ext_tables.php`:
+   The configuration is added to your extension's 
+   :file:`Configuration/TCA/Overrides/pages.php` file:
 
-    ..  literalinclude:: _ext_tables.php
-        :language: php
-        :caption: EXT:examples/ext_tables.php
+   .. code-block:: php
+      :caption: EXT:my_extension/Configuration/TCA/Overrides/pages.php
+
+      // Define which records are allowed on the new page type '116'
+      // Use '*' to allow all database tables:
+      $GLOBALS['TCA']['pages']['types']['116']['allowedRecordTypes'] = ['*'];
+
+      // Alternatively, restrict the page type to specific tables only:
+      $GLOBALS['TCA']['pages']['types']['117']['allowedRecordTypes'] = [
+          'tt_content',
+          'tx_myextension_domain_model_record',
+      ];
+
+   The :php:`allowedRecordTypes` option accepts an array of table names or a 
+   single asterisk (``*``) to permit all record types.
+
+   .. note::
+      By default (if this option is not set), TYPO3 only allows the tables 
+      ``pages``, ``sys_category``, ``sys_file_reference``, and 
+      ``sys_file_collection`` on custom page types.
+
+   .. important::
+      Setting :php:`allowedRecordTypes` will override any previous 
+      restrictions. This includes tables that have 
+      :php:`ctrl.security.ignorePageTypeRestriction` enabled; they must be 
+      explicitly listed if you define this TCA option.
 
 2.  Add an icon chosen for the new page type
 
